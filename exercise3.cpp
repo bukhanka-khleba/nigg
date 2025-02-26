@@ -1,73 +1,35 @@
 #include <iostream>
+#include <fstream>
 #include <string>
-
-class Person {
-protected:
-    std::string name;  
-    int age;           
-
-public:
-    Person(const std::string& n = "", int a = 0) : name(n), age(a) {}
-
-    virtual void printInfo() const {
-        std::cout << "Person: " << name << ", Age: " << age << "\n";
-    }
-
-    virtual ~Person() = default;
-};
-
-
-class Student : public virtual Person {
-protected:
-    std::string university;
-
-public:
-    Student(const std::string& n = "", int a = 0, const std::string& u = "")
-        : Person(n, a), university(u) {}
-
-    void printInfo() const override {
-        std::cout << "Student: " << name << ", Age: " << age
-                  << ", University: " << university << "\n";
-    }
-};
-
-class Worker : public virtual Person {
-protected:
-    std::string company;  
-
-public:
-    Worker(const std::string& n = "", int a = 0, const std::string& c = "")
-        : Person(n, a), company(c) {}
-
-    void printInfo() const override {
-        std::cout << "Worker: " << name << ", Age: " << age
-                  << ", Company: " << company << "\n";
-    }
-};
-
-class Intern : public Student, public Worker {
-public:
-    Intern(const std::string& n = "", int a = 0, const std::string& u = "", const std::string& c = "")
-        : Person(n, a), Student(n, a, u), Worker(n, a, c) {}
-
-    void printInfo() const override {
-        std::cout << "Intern: " << name << ", Age: " << age
-                  << ", University: " << university
-                  << ", Company: " << company << "\n";
-    }
-};
+#include <regex>
 
 int main() {
 
-    Person person("Alice", 30);
-    Student student("Bob", 22, "MIT");
-    Worker worker("Charlie", 40, "Google");
-    Intern intern("David", 25, "Harvard", "Microsoft");
+    std::cout << "Введите имя файла: ";
+    std::string filename;
+    std::cin >> filename;
 
-    person.printInfo();
-    student.printInfo();
-    worker.printInfo();
-    intern.printInfo();
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "Ошибка: не удалось открыть файл '" << filename << "'." << std::endl;
+        return 1;
+    }
+
+    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+
+    std::regex emailPattern(R"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})");
+
+    std::smatch matches;
+
+    std::cout << "Найденные email-адреса:" << std::endl;
+
+    std::string::const_iterator searchStart(fileContent.cbegin());
+    while (std::regex_search(searchStart, fileContent.cend(), matches, emailPattern)) {
+        std::cout << matches[0] << std::endl;
+        searchStart = matches.suffix().first;
+    }
 
     return 0;
 }

@@ -1,48 +1,56 @@
 #include <iostream>
-#include <vector>
-
-/// Базовый класс "Геометрическая фигура"
-class Shape {
-public:
-    virtual double area() const = 0;
-    virtual double perimeter() const = 0;
-    virtual ~Shape() = default; 
-};
-
-/// Производный класс "Прямоугольник"
-class Rectangle : public Shape {
-protected:
-    double width, height;
-public:
-    Rectangle(double w = 0, double h = 0) : width(w), height(h) {}
-    double area() const override { return width * height; }
-    double perimeter() const override { return 2 * (width + height); }
-};
-
-/// Производный класс "Квадрат"
-class Square : public Rectangle {
-public:
-    Square(double side = 0) : Rectangle(side, side) {}
-};
-
-class Pepe : public Square {
-public:
-    Pepe(double e = 0) : Square(e) {}
-};
+#include <fstream>
+#include <string>
 
 int main() {
-    std::vector<Shape*> shapes; 
-    shapes.push_back(new Rectangle(4, 5)); 
-    shapes.push_back(new Square(4));       
-    shapes.push_back(new Pepe(2));         
 
-    for (const auto& shape : shapes) {
-        std::cout << "Area: " << shape->area() << ", Perimeter: " << shape->perimeter() << "\n"; 
+    std::string filename;
+
+    std::cout << "Введите имя файла: ";
+    std::cin >> filename;
+
+
+    std::ofstream file(filename);
+
+    
+    if (!file.is_open()) {
+        std::cerr << "Ошибка: не удалось открыть файл для записи." << std::endl;
+        return 1; 
     }
 
-    for (const auto& shape : shapes) {
-        delete shape; 
+    
+    std::string line;
+
+    std::cout << "Введите 5 строк текста:" << std::endl;
+
+    
+    for (int i = 0; i < 5; ++i) {
+        std::cout << "Строка " << i + 1 << ": ";
+        std::cin.ignore(); 
+        std::getline(std::cin, line); 
+        file << line << std::endl; 
     }
+
+    file.close();
+
+    std::cout << "Данные успешно записаны в файл." << std::endl;
+
+    std::ifstream readFile(filename);
+
+
+    if (!readFile.is_open()) {
+        std::cerr << "Ошибка: не удалось открыть файл для чтения." << std::endl;
+        return 1; //
+    }
+
+    std::cout << "\nСодержимое файла:" << std::endl;
+
+
+    while (std::getline(readFile, line)) {
+        std::cout << line << std::endl;
+    }
+
+    readFile.close();
 
     return 0;
 }
